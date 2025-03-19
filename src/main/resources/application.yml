@@ -1,0 +1,10 @@
+spring:
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/banco
+    username: root
+    password: ${DATA_BASE_PASS}
+    pool:
+      enabled: true
+  sql:
+    init:
+      mode: always
