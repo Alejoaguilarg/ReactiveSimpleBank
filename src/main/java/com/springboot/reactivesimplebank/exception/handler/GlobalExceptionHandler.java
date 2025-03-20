@@ -1,7 +1,7 @@
 package com.springboot.reactivesimplebank.exception.handler;
 
-import com.springboot.reactivesimplebank.exception.customExceptions.CostumerNotFoundException;
-import com.springboot.reactivesimplebank.exception.customExceptions.DuplicateUserException;
+import com.springboot.reactivesimplebank.exception.customExceptions.EntityNotFoundException;
+import com.springboot.reactivesimplebank.exception.customExceptions.DuplicateEntityException;
 import com.springboot.reactivesimplebank.exception.model.ApiErrorDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,8 @@ public class GlobalExceptionHandler {
 
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(DuplicateUserException.class)
-    private Mono<ResponseEntity<ApiErrorDto>> handleDuplicateUserException(final CostumerNotFoundException e,
+    @ExceptionHandler(DuplicateEntityException.class)
+    private Mono<ResponseEntity<ApiErrorDto>> handleDuplicateCostumerException(final DuplicateEntityException e,
                                                                            final ServerWebExchange exchange) {
         log.error(e.getMessage());
         return Mono.just(
@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(CostumerNotFoundException.class)
-    private Mono<ResponseEntity<ApiErrorDto>> handleCostumerNotFoundException(final CostumerNotFoundException e,
+    @ExceptionHandler(EntityNotFoundException.class)
+    private Mono<ResponseEntity<ApiErrorDto>> handleEntityNotFoundException(final EntityNotFoundException e,
                                                                               final ServerWebExchange exchange
     ) {
         log.error("[User Service] User not found with id: {}", e.getMessage());
