@@ -17,7 +17,7 @@ public class BankAccountController {
     }
 
     @GetMapping("/{bankAccountId}")
-    public Mono<BankAccount> getAccounts(@PathVariable final Long bankAccountId) {
+    public Mono<BankAccount> getAccount(@PathVariable final Long bankAccountId) {
         return bankAccountService.findById(bankAccountId);
     }
 
