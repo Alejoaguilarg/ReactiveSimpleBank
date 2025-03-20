@@ -11,15 +11,18 @@ import java.time.LocalDateTime;
 public class Transaction {
 
     @Id
+    @Column("transactionId")
     private Long transactionId;
 
     private String type;
 
+    @Column("bankAccountId")
     private Long bankAccountId;
 
     @Column("value")
     private Long amount;
 
+    @Column("creationDate")
     private final LocalDateTime creationDate;
 
     public Transaction() {
