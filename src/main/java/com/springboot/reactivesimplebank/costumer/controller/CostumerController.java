@@ -1,8 +1,11 @@
 package com.springboot.reactivesimplebank.costumer.controller;
 
+import com.springboot.reactivesimplebank.dto.bankAccountDto.CustomerAccountsResponse;
 import com.springboot.reactivesimplebank.costumer.model.Costumer;
 import com.springboot.reactivesimplebank.costumer.service.CostumerService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,5 +42,11 @@ public class CostumerController {
     @DeleteMapping("/{costumerId}")
     public Mono<String> deleteCostumer(@PathVariable final Long costumerId) {
         return costumerService.delete(costumerId);
+    }
+
+    @GetMapping("/account-details/{costumerId}")
+    public Mono<CustomerAccountsResponse> accountsDetails(@PathVariable final Long costumerId) {
+        return costumerService.getBankAccountResumeUserId(costumerId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
     }
 }

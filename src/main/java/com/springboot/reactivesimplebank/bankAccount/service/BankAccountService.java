@@ -34,6 +34,10 @@ public class BankAccountService {
         return bankAccountRepository.findAll();
     }
 
+    public Flux<BankAccount> findAllBankAccountsByCustomerId(final Long customerId) {
+        return bankAccountRepository.findAllByCostumerId(customerId);
+    }
+
     public Mono<BankAccount> save(final BankAccount bankAccount) {
         return costumerRepository.findById(bankAccount.getCostumerId())
                .switchIfEmpty(Mono.error(new EntityNotFoundException(String.format(
@@ -42,17 +46,6 @@ public class BankAccountService {
                ))))
                 .flatMap(costumer ->  bankAccountRepository.save(bankAccount));
     }
-
-//    public Mono<BankAccount> update(final BankAccount bankAccount) {
-//        return bankAccountRepository.findById(bankAccount.getBankAccountId())
-//                .switchIfEmpty(Mono.error(new EntityNotFoundException(String.format(
-//                        BANK_ACCOUNT_NOT_FOUND, bankAccount.getBankAccountId()
-//                )))).map(accountToUpdate -> {
-//                    accountToUpdate.setBankAccountId(bankAccount.getBankAccountId());
-//                    accountToUpdate.setCostumerId(bankAccount.getCostumerId());
-//                    return accountToUpdate;
-//                }).flatMap(bankAccountRepository::save);
-//    }
 
     public Mono<String> deleteById(final Long id) {
         return bankAccountRepository.findById(id)

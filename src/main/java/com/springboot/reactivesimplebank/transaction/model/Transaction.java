@@ -1,5 +1,6 @@
 package com.springboot.reactivesimplebank.transaction.model;
 
+import com.springboot.reactivesimplebank.dto.transactionDto.TransactionDto;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.relational.core.mapping.Column;
@@ -55,6 +56,10 @@ public class Transaction {
         this.creationDate = LocalDateTime.now();
     }
 
+    public static TransactionDto from(final Transaction transaction) {
+        return new TransactionDto(transaction.getType(), transaction.getAmount());
+    }
+
     public Long getTransactionId() {
         return transactionId;
     }
@@ -86,4 +91,5 @@ public class Transaction {
     public void setBankAccountId(final Long bankAccountId) {
         this.bankAccountId = bankAccountId;
     }
+
 }

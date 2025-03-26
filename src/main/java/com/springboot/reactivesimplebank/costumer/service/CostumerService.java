@@ -1,22 +1,39 @@
 package com.springboot.reactivesimplebank.costumer.service;
 
+import com.springboot.reactivesimplebank.bankAccount.model.BankAccount;
+import com.springboot.reactivesimplebank.bankAccount.service.BankAccountService;
+import com.springboot.reactivesimplebank.dto.bankAccountDto.AccountWithTransactions;
+import com.springboot.reactivesimplebank.dto.bankAccountDto.CustomerAccountsResponse;
+import com.springboot.reactivesimplebank.bankAccount.repository.IBankAccountRepository;
 import com.springboot.reactivesimplebank.costumer.model.Costumer;
 import com.springboot.reactivesimplebank.costumer.respository.ICostumerRepository;
+import com.springboot.reactivesimplebank.dto.transactionDto.TotalAmount;
+import com.springboot.reactivesimplebank.dto.transactionDto.TransactionDto;
 import com.springboot.reactivesimplebank.exception.customExceptions.EntityNotFoundException;
 import com.springboot.reactivesimplebank.exception.customExceptions.DuplicateEntityException;
+import com.springboot.reactivesimplebank.transaction.Service.TransactionService;
+import com.springboot.reactivesimplebank.transaction.model.Transaction;
+import com.springboot.reactivesimplebank.transaction.repository.ITransactionRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 public class CostumerService {
     private final ICostumerRepository costumerRepository;
+    private final BankAccountService bankAccountService;
 
     public static final String NOT_FOUND_WITH_ID = " not found with id: ";
     private static final String USER_SERVICE = "[User Service] User";
+    private final TransactionService transactionService;
 
-    public CostumerService(final ICostumerRepository costumerRepository) {
+    public CostumerService(final ICostumerRepository costumerRepository,
+                           final BankAccountService bankAccountService, TransactionService transactionService) {
         this.costumerRepository = costumerRepository;
+        this.bankAccountService = bankAccountService;
+        this.transactionService = transactionService;
     }
 
     public Mono<Costumer> findById(final Long id) {
@@ -53,5 +70,34 @@ public class CostumerService {
                 .switchIfEmpty(Mono.error(new EntityNotFoundException(USER_SERVICE + NOT_FOUND_WITH_ID + id)))
                 .flatMap(customerExisting -> costumerRepository.deleteById(customerExisting.getCostumerId()))
                 .then(Mono.just("Customer with id " + id + " deleted successfully"));
+    }
+
+    public Mono<CustomerAccountsResponse> getBankAccountResumeUserId(final Long costumerId) {
+        return costumerRepository.findById(costumerId)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException(USER_SERVICE + NOT_FOUND_WITH_ID + costumerId)))
+                .flatMap(customer -> bankAccountService
+                        .findAllBankAccountsByCustomerId(customer.getCostumerId())
+                        .flatMap(bankAccount -> transactionService
+                                .getFullResume(bankAccount.getBankAccountId())
+                                .map(totalAmount -> new AccountWithTransactions(
+                                        bankAccount.getNumber(),
+                                        totalAmount.getTransactions().stream().map(Transaction::from).toList(),
+                                        totalAmount.getTotalAmount()
+                                ))
+                        )
+                        .collectList()
+                        .map( accounts -> {
+                            double totalAmount = accounts.stream()
+                                    .mapToDouble(AccountWithTransactions::amount)
+                                    .sum();
+                            return new CustomerAccountsResponse(
+                                    customer.getName(),
+                                    accounts,
+                                    totalAmount
+                            );
+                        })
+                );
+
+
     }
 }
