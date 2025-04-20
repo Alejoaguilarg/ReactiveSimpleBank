@@ -1,4 +1,4 @@
-name: CI develop (No Docker)
+name: CI develop
 
 on:
   pull_request:
