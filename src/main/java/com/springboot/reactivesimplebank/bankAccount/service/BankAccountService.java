@@ -11,10 +11,10 @@ import reactor.core.publisher.Mono;
 @Service
 public class BankAccountService {
 
-    private static final String BANK_SERVICE_STRING = "[Bank Service]";
     final IBankAccountRepository bankAccountRepository;
     final ICostumerRepository costumerRepository;
 
+    private static final String BANK_SERVICE_STRING = "[Bank Service]";
     private static final String BANK_ACCOUNT_NOT_FOUND = "Bank account with id %s not found";
 
 
@@ -38,19 +38,20 @@ public class BankAccountService {
         return bankAccountRepository.findAllByCostumerId(customerId);
     }
 
-    public Mono<BankAccount> save(final BankAccount bankAccount) {
-        return costumerRepository.findById(bankAccount.getCostumerId())
-               .switchIfEmpty(Mono.error(new EntityNotFoundException(String.format(
-                       BANK_SERVICE_STRING + " It's no possible create account, user with id: %s no found",
-                       bankAccount.getCostumerId()
-               ))))
-                .flatMap(costumer ->  bankAccountRepository.save(bankAccount));
+    public Mono<BankAccount> save(BankAccount bankAccount) {
+        return costumerRepository.existsById(bankAccount.getCostumerId())
+                .filter(Boolean::booleanValue)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException(
+                        String.format("User %s not found", bankAccount.getCostumerId())
+                )))
+                .flatMap(ok -> bankAccountRepository.save(bankAccount));
     }
+
 
     public Mono<String> deleteById(final Long id) {
         return bankAccountRepository.findById(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException(String.format(BANK_ACCOUNT_NOT_FOUND, id))))
                 .flatMap(bankAccount -> bankAccountRepository.deleteById(id))
-                .then(Mono.just(BANK_SERVICE_STRING + "Bank account with id " + id + " deleted successfully"));
+                .then(Mono.just(BANK_SERVICE_STRING + " Bank account with id " + id + " deleted successfully"));
     }
 }

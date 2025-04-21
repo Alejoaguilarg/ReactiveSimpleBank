@@ -209,5 +209,24 @@ public class TestUtils {
         );
     }
 
+    public Mono<BankAccount> getMonoTestBankAccount(final Long id) {
+        return Mono.just(
+                new BankAccount(
+                        id,
+                        "234325432",
+                        2L,
+                        LocalDateTime.now()
+                )
+        );
+    }
+
+    public BankAccount getTestBankAccount(final Long id) {
+        return new BankAccount(
+                id,
+                "234325432",
+                2L,
+                LocalDateTime.now()
+        );
+    }
 
 }
