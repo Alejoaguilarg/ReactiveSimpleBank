@@ -59,7 +59,7 @@ public class TransactionController {
 
     @PutMapping
     public Mono<Transaction> updateTransaction(@RequestBody final Transaction transaction) {
-        return transactionService.save(transaction);
+        return transactionService.update(transaction);
     }
 
     @DeleteMapping("/{transactionId}")

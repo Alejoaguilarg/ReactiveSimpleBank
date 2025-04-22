@@ -4,6 +4,7 @@ import com.springboot.reactivesimplebank.bankAccount.model.BankAccount;
 import com.springboot.reactivesimplebank.costumer.model.Costumer;
 import com.springboot.reactivesimplebank.dto.bankAccountDto.AccountWithTransactions;
 import com.springboot.reactivesimplebank.dto.bankAccountDto.CustomerAccountsResponse;
+import com.springboot.reactivesimplebank.dto.transactionDto.TotalAmount;
 import com.springboot.reactivesimplebank.dto.transactionDto.TransactionDto;
 import com.springboot.reactivesimplebank.transaction.model.Transaction;
 import reactor.core.publisher.Flux;
@@ -65,6 +66,10 @@ public class TestUtils {
                         LocalDateTime.now().minusMonths(2)
                 )
         );
+    }
+
+    public Mono<TotalAmount> totalAmount() {
+        return Mono.just(new TotalAmount(2000D, createSampleTransactions()));
     }
 
     public static class TransactionType {
