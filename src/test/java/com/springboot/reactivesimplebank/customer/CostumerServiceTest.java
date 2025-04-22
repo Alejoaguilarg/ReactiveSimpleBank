@@ -1,4 +1,4 @@
-package com.springboot.reactivesimplebank.customerTest;
+package com.springboot.reactivesimplebank.customer;
 
 import com.springboot.reactivesimplebank.TestUtils;
 import com.springboot.reactivesimplebank.bankAccount.service.BankAccountService;

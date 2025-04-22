@@ -1,4 +1,4 @@
-package com.springboot.reactivesimplebank.transactionTest;
+package com.springboot.reactivesimplebank.transaction;
 
 import com.springboot.reactivesimplebank.TestUtils;
 import com.springboot.reactivesimplebank.bankAccount.service.BankAccountService;

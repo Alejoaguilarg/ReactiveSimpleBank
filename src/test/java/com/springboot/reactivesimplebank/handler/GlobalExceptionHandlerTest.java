@@ -1,4 +1,4 @@
-package com.springboot.reactivesimplebank.handlerTest;
+package com.springboot.reactivesimplebank.handler;
 
 import com.springboot.reactivesimplebank.exception.customExceptions.DuplicateEntityException;
 import com.springboot.reactivesimplebank.exception.customExceptions.EntityNotFoundException;

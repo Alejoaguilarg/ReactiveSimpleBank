@@ -1,4 +1,4 @@
-package com.springboot.reactivesimplebank.banckAccountTest;
+package com.springboot.reactivesimplebank.banckAccount;
 
 import com.springboot.reactivesimplebank.TestUtils;
 import com.springboot.reactivesimplebank.bankAccount.repository.IBankAccountRepository;

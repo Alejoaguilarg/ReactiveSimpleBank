@@ -2,6 +2,9 @@ package com.springboot.reactivesimplebank;
 
 import com.springboot.reactivesimplebank.bankAccount.model.BankAccount;
 import com.springboot.reactivesimplebank.costumer.model.Costumer;
+import com.springboot.reactivesimplebank.dto.bankAccountDto.AccountWithTransactions;
+import com.springboot.reactivesimplebank.dto.bankAccountDto.CustomerAccountsResponse;
+import com.springboot.reactivesimplebank.dto.transactionDto.TransactionDto;
 import com.springboot.reactivesimplebank.transaction.model.Transaction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,8 +27,8 @@ public class TestUtils {
         return new Costumer(
                 id,
                 "Luisa",
-                "<EMAIL>",
-                "123456789"
+                "123456789",
+                "<EMAIL>"
         );
     }
 
@@ -229,4 +232,45 @@ public class TestUtils {
         );
     }
 
+    public Flux<Costumer> getFluxTestCostumer() {
+        return Flux.just(
+                testCostumerWithId(1L),
+                testCostumerWithId(2L),
+                testCostumerWithId(3L)
+        );
+    }
+
+    public CustomerAccountsResponse CustomerAccountsResponse() {
+
+        List<TransactionDto> transactionDtos = List.of(
+                new TransactionDto(TransactionType.DEPOSIT, 2300D),
+                new TransactionDto(TransactionType.WITHDRAWAL, 100D),
+                new TransactionDto(TransactionType.DEPOSIT, 1000D),
+                new TransactionDto(TransactionType.WITHDRAWAL, 100D)
+        );
+
+        List<TransactionDto> transactionDtos1 = List.of(
+                new TransactionDto(TransactionType.DEPOSIT, 200D),
+                new TransactionDto(TransactionType.WITHDRAWAL, 100D),
+                new TransactionDto(TransactionType.DEPOSIT, 100D),
+                new TransactionDto(TransactionType.WITHDRAWAL, 100D)
+        );
+
+        List<AccountWithTransactions> accountWithTransactions = List.of(
+                new AccountWithTransactions(
+                        "23423423",
+                        transactionDtos,
+                        3500D
+                ),
+                new AccountWithTransactions(
+                        "78932324",
+                        transactionDtos1,
+                        500D
+                )
+        );
+
+        return new CustomerAccountsResponse(
+                "Luisa", accountWithTransactions, 4500D
+        );
+    }
 }
