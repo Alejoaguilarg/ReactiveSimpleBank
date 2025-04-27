@@ -1,10 +1,26 @@
 spring:
+  profiles:
+    active: dev
+  banner:
+    location: classpath:banner.txt
+
   r2dbc:
-    url: r2dbc:mysql://localhost:3306/banco
-    username: root
-    password: ${DATA_BASE_PASS}
     pool:
       enabled: true
+
   sql:
     init:
       mode: always
+
+  logging:
+        level:
+          org.springframework.boot.context.logging.LoggingApplicationListener: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

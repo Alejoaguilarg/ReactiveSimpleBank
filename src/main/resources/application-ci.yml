@@ -5,4 +5,7 @@ spring:
     password:
   main:
     banner-mode: off
-logging.level.root: WARN
+
+logging:
+  level:
+    root: WARN

@@ -3,7 +3,6 @@ package com.springboot.reactivesimplebank.banckAccount;
 import com.springboot.reactivesimplebank.TestUtils;
 import com.springboot.reactivesimplebank.bankAccount.controller.BankAccountController;
 import com.springboot.reactivesimplebank.bankAccount.model.BankAccount;
-import com.springboot.reactivesimplebank.bankAccount.model.BankAccountRequestDto;
 import com.springboot.reactivesimplebank.bankAccount.service.BankAccountService;
 import com.springboot.reactivesimplebank.exception.customExceptions.EntityNotFoundException;
 import com.springboot.reactivesimplebank.exception.handler.GlobalExceptionHandler;

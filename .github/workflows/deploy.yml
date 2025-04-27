@@ -1,0 +1,51 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Build, Test & Deploy
+    runs-on: ubuntu-latest
+
+    env:
+      BUCKET_NAME: reactive-simple-bank-artifacts
+      JAR_PATH: build/libs/ReactiveSimpleBank-0.0.1-SNAPSHOT.jar
+      S3_KEY: jars/reactive-simple-bank.jar
+      REGION: us-east-1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build and Test with Gradle
+        run: ./gradlew clean test jacocoTestReport bootJar
+
+      - name: Upload JaCoCo HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/html
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-deploy
+          aws-region: ${{ env.REGION }}
+
+      - name: Upload JAR to S3
+        run: |
+          aws s3 cp ${{ env.JAR_PATH }} s3://${{ env.BUCKET_NAME }}/${{ env.S3_KEY }}
+          echo "JAR subido correctamente a S3"
