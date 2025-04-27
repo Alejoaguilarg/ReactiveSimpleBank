@@ -31,11 +31,6 @@ public class BankAccountController {
         return bankAccountService.save(bankAccount);
     }
 
-//    @PutMapping()
-//    public Mono<BankAccount> updateAccount(@RequestBody final BankAccount bankAccount) {
-//        return bankAccountService.update(bankAccount);
-//    }
-
     @DeleteMapping("/{bankAccountId}")
     public Mono<String> deleteAccount(@PathVariable final Long bankAccountId) {
         return bankAccountService.deleteById(bankAccountId);

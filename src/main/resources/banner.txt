@@ -1,0 +1,14 @@
+${AnsiColor.BRIGHT_YELLOW}
+██████╗ ███████╗ █████╗  ██████╗███████╗██████╗ ███████╗███████╗██████╗
+██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝██╔══██╗██╔════╝██╔════╝██╔══██╗
+██████╔╝█████╗  ███████║██║     █████╗  ██████╔╝█████╗  █████╗  ██████╔╝
+██╔═══╝ ██╔══╝  ██╔══██║██║     ██╔══╝  ██╔═══╝ ██╔══╝  ██╔══╝  ██╔═══╝
+██║     ███████╗██║  ██║╚██████╗███████╗██║     ███████╗███████╗██║
+╚═╝     ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝     ╚══════╝╚══════╝╚═╝
+${AnsiColor.DEFAULT}
+
+${AnsiColor.BRIGHT_CYAN}💸 Proyecto:     ${AnsiColor.BRIGHT_WHITE}${info.app.name} v${info.app.version}
+${AnsiColor.BRIGHT_CYAN}🧠 Descripción:  ${AnsiColor.BRIGHT_WHITE}${info.app.description}
+${AnsiColor.BRIGHT_CYAN}👨‍💻 Desarrollado por: ${AnsiColor.BRIGHT_WHITE}${info.developer.name} – ${info.developer.email}
+${AnsiColor.BRIGHT_CYAN}🌍 Perfil activo: ${AnsiColor.BRIGHT_WHITE}${spring.profiles.active}
+${AnsiColor.DEFAULT}

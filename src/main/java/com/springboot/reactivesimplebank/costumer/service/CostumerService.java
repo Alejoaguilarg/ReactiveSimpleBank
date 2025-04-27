@@ -1,19 +1,14 @@
 package com.springboot.reactivesimplebank.costumer.service;
 
-import com.springboot.reactivesimplebank.bankAccount.model.BankAccount;
 import com.springboot.reactivesimplebank.bankAccount.service.BankAccountService;
 import com.springboot.reactivesimplebank.dto.bankAccountDto.AccountWithTransactions;
 import com.springboot.reactivesimplebank.dto.bankAccountDto.CustomerAccountsResponse;
-import com.springboot.reactivesimplebank.bankAccount.repository.IBankAccountRepository;
 import com.springboot.reactivesimplebank.costumer.model.Costumer;
 import com.springboot.reactivesimplebank.costumer.respository.ICostumerRepository;
-import com.springboot.reactivesimplebank.dto.transactionDto.TotalAmount;
-import com.springboot.reactivesimplebank.dto.transactionDto.TransactionDto;
 import com.springboot.reactivesimplebank.exception.customExceptions.EntityNotFoundException;
 import com.springboot.reactivesimplebank.exception.customExceptions.DuplicateEntityException;
 import com.springboot.reactivesimplebank.transaction.Service.TransactionService;
 import com.springboot.reactivesimplebank.transaction.model.Transaction;
-import com.springboot.reactivesimplebank.transaction.repository.ITransactionRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -87,9 +82,7 @@ public class CostumerService {
                         )
                         .collectList()
                         .map( accounts -> {
-                            double totalAmount = accounts.stream()
-                                    .mapToDouble(AccountWithTransactions::amount)
-                                    .sum();
+                            double totalAmount = getSumTotal(accounts);
                             return new CustomerAccountsResponse(
                                     customer.getName(),
                                     accounts,
@@ -99,5 +92,11 @@ public class CostumerService {
                 );
 
 
+    }
+
+    private static double getSumTotal(final List<AccountWithTransactions> accounts) {
+        return accounts.stream()
+                .mapToDouble(AccountWithTransactions::amount)
+                .sum();
     }
 }

@@ -1,0 +1,26 @@
+spring:
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/banco
+    username: root
+    password: ${DATA_BASE_PASS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: ReactiveSimpleBank
+    description: API reactiva para gestión bancaria con R2DBC y Spring Boot
+    version: 1.0.0
+  developer:
+    name: Alejandro Aguilar
+    email: alejandroaguilarg@hotmail.com

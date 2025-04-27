@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(DuplicateEntityException.class)
-    private Mono<ResponseEntity<ApiErrorDto>> handleDuplicateCostumerException(final DuplicateEntityException e,
+    public Mono<ResponseEntity<ApiErrorDto>> handleDuplicateCostumerException(final DuplicateEntityException e,
                                                                            final ServerWebExchange exchange) {
         log.error(e.getMessage());
         return Mono.just(
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    private Mono<ResponseEntity<ApiErrorDto>> handleEntityNotFoundException(final EntityNotFoundException e,
+    public Mono<ResponseEntity<ApiErrorDto>> handleEntityNotFoundException(final EntityNotFoundException e,
                                                                               final ServerWebExchange exchange
     ) {
         log.error("[User Service] User not found with id: {}", e.getMessage());
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    private Mono<ResponseEntity<ApiErrorDto>> handleIllegalArgumentException(final IllegalArgumentException e,
+    public Mono<ResponseEntity<ApiErrorDto>> handleIllegalArgumentException(final IllegalArgumentException e,
                                                                              final ServerWebExchange exchange) {
         log.error("[User Service] Illegal argument: {}", e.getMessage());
         return Mono.just(
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Throwable.class)
-    private Mono<ResponseEntity<ApiErrorDto>> handleUnexpectedException(final Exception e,
+    public Mono<ResponseEntity<ApiErrorDto>> handleUnexpectedException(final Exception e,
                                                                         final ServerWebExchange exchange) {
         log.error("[User Service] Unexpected exception: {}", e.getMessage());
         return Mono.just(

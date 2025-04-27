@@ -2,6 +2,7 @@ package com.springboot.reactivesimplebank.transaction.Service;
 
 import com.springboot.reactivesimplebank.bankAccount.service.BankAccountService;
 import com.springboot.reactivesimplebank.dto.transactionDto.TotalAmount;
+import com.springboot.reactivesimplebank.exception.customExceptions.DuplicateEntityException;
 import com.springboot.reactivesimplebank.exception.customExceptions.EntityNotFoundException;
 import com.springboot.reactivesimplebank.transaction.model.Transaction;
 import com.springboot.reactivesimplebank.transaction.repository.ITransactionRepository;
@@ -9,25 +10,21 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
 
     private final ITransactionRepository transactionRepository;
-    private final BankAccountService bankAccountService;
 
-    private static final String EXISTING_BANK_ACCOUNT = "[Transaction Service] There's no exits bank account with id: %s";
+    private static final String EXISTING_TRANSACTION = "[Transaction Service] The transaction with id: %s, already exists";
     private static final String TRANSACTION_NOT_FOUND = "[Transaction Service] Transaction with id: %s not found";
     private static final Set<String> VALID_TYPES = Set.of("withdrawal", "deposit", "transfer");
 
-    public TransactionService(final ITransactionRepository transactionRepository,
-                              final BankAccountService bankAccountService) {
+    public TransactionService(final ITransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
-        this.bankAccountService = bankAccountService;
     }
 
     public Mono<Transaction> findById(final Long id) {
@@ -42,13 +39,14 @@ public class TransactionService {
     }
 
     public Mono<Transaction> save(final Transaction transaction) {
-        return bankAccountService.findById(transaction.getBankAccountId())
-                .switchIfEmpty(Mono.error(new EntityNotFoundException(
-                        formatMessage(EXISTING_BANK_ACCOUNT,
-                        String.valueOf(transaction.getBankAccountId())
-                        )
-                )))
-                .flatMap(t -> transactionRepository.save(transaction));
+        return transactionRepository.existsById(transaction.getTransactionId())
+                .flatMap(exists -> exists
+                                ? Mono.error(new DuplicateEntityException(
+                                formatMessage(EXISTING_TRANSACTION,
+                                        String.valueOf(transaction.getTransactionId()))
+                        ))
+                                : transactionRepository.save(transaction)
+                );
     }
 
     public Mono<Transaction> update(final Transaction transaction) {
@@ -60,11 +58,12 @@ public class TransactionService {
 
     public Mono<String> deleteById(final Long id) {
         return transactionRepository.findById(id)
-                .switchIfEmpty(Mono.error(new EntityNotFoundException(
+        .switchIfEmpty(Mono.error(new EntityNotFoundException(
                         formatMessage(TRANSACTION_NOT_FOUND, String.valueOf(id))))
                 )
                 .flatMap(transactionRepository::delete)
-                .then(Mono.just("[Transaction Service] Transaction with id: %s successfully deleted"));
+                .then(Mono.just(
+                        String.format("[Transaction Service] Transaction with id: %s successfully deleted", id)));
     }
 
     public Flux<Transaction> findAllByBankAccountId(final Long bankAccountId) {
@@ -95,20 +94,38 @@ public class TransactionService {
                 });
     }
 
-    public Mono<TotalAmount> getFullResume(final Long bankAccountId) {
-        return Mono.defer(() -> Mono.just(validateBankAccountId(bankAccountId)))
-                .flatMap(tuple -> {
-                    Flux<Transaction> transactions = transactionRepository.findAllByBankAccountId(bankAccountId)
-                            .take(100);
-
-                    Mono<Double> total = calculateTotalAmount(transactions);
-
-                    return total.zipWith(transactions
-                            .collectList())
-                            .map(result -> new TotalAmount(result.getT1(), result.getT2()));
-                });
-
+    public Mono<TotalAmount> getFullResume(Long bankAccountId) {
+        return validateBankAccountId(bankAccountId)
+                .flatMap(this::loadAndCompute);
     }
+
+    private Mono<Long> validateBankAccountId(Long id) {
+        if (id == null || id < 0) {
+            return Mono.error(new IllegalArgumentException("Bank account id cannot be null"));
+        }
+        return Mono.just(id);
+    }
+
+    private Mono<TotalAmount> loadAndCompute(Long validId) {
+        Flux<Transaction> txFlux = fetchTransactions(validId);
+
+        Mono<List<Transaction>> listMono = txFlux.collectList();
+        Mono<Double> totalMono = listMono
+                .flatMapMany(Flux::fromIterable)
+                .map(Transaction::getAmount)
+                .reduce(0.0, Double::sum);
+
+        return Mono.zip(totalMono, listMono)
+                .map(tuple -> new TotalAmount(tuple.getT1(), tuple.getT2()));
+    }
+
+    private Flux<Transaction> fetchTransactions(Long bankAccountId) {
+        return transactionRepository
+                .findAllByBankAccountId(bankAccountId)
+                .take(100)
+                .cache();
+    }
+
 
     private String formatMessage(final String message, final String argument) {
         return String.format(message, argument);
@@ -126,32 +143,9 @@ public class TransactionService {
                         ))));
     }
 
-    private Mono<Long> validateBankAccountId(final Long bankAccountId) {
-        return Mono.justOrEmpty(bankAccountId)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Bank account id cannot be null")))
-                .filter(id -> id > 0)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException(
-                        "[Transaction service] Bank account id invalid id: " + bankAccountId)));
-    }
-
     private Mono<Double> calculateAmountByType(final Flux<Transaction> transactions) {
         return transactions
                 .map(Transaction::getAmount)
                 .reduce(0.0, Double::sum);
-    }
-
-    private Mono<Double> calculateTotalAmount(final Flux<Transaction> transactions) {
-        return transactions.collect(
-                Collectors.groupingBy(
-                        Transaction::getType,
-                        Collectors.summingDouble(Transaction::getAmount)
-                )
-        )
-                .flatMap(total -> {
-                    double depositAmount = total.getOrDefault("deposit", 0.0);
-                    double withdrawalAmount = total.getOrDefault("withdrawal", 0.0);
-                    return Mono.just(depositAmount - withdrawalAmount);
-                });
-
     }
 }
